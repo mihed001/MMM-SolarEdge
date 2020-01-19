@@ -18,9 +18,15 @@ Module.register("MMM-SolarEdge",{
         // Logging appears in Chrome developer tools console
         Log.info("Starting module: " + this.name);
 
-        this.titles = ["Current Power:", "Daily Energy:", "Last Month:", "Last Year:", "Lifetime Energy:"];
-        this.suffixes = ["Watts", "kWh", "kWh", "kWh", "MWh"];
-        this.results = ["Loading", "Loading", "Loading", "Loading", "Loading"];
+		if (config.language == 'sv') {
+			this.titles = ["Aktuell effekt:", "Energi idag:", "Energi denna månad:", "Energi detta år:", "Energi från start:"];
+		}
+		else {
+			this.titles = ["Current Power:", "Daily Energy:", "Last Month:", "Last Year:", "Lifetime Energy:"];
+		}
+
+		this.suffixes = ["Watt", "kWh", "kWh", "kWh", "MWh"];
+		this.results = ["Loading", "Loading", "Loading", "Loading", "Loading"];
         this.loaded = false;
         this.getSolarData();
 
@@ -59,7 +65,7 @@ Module.register("MMM-SolarEdge",{
 	    if (currentPower > 1000) {
                this.results[0] = (currentPower / 1000).toFixed(2) + " kW";
             } else {
-               this.results[0] = currentPower + " Watts";
+               this.results[0] = currentPower + " Watt";
             }
             this.results[1] = (payload.overview.lastDayData.energy / 1000).toFixed(2) + " kWh";
             this.results[2] = (payload.overview.lastMonthData.energy / 1000).toFixed(2) + " kWh";
@@ -74,10 +80,10 @@ Module.register("MMM-SolarEdge",{
     getDom: function() {
 
         var wrapper = document.createElement("div");
-	if (this.config.apiKey === "" || this.config.siteId === "") {
-	    wrapper.innerHTML = "Missing configuration.";
-	    return wrapper;
-	}
+		if (this.config.apiKey === "" || this.config.siteId === "") {
+			wrapper.innerHTML = "Missing configuration.";
+			return wrapper;
+		}
 
         //Display loading while waiting for API response
         if (!this.loaded) {
@@ -89,18 +95,20 @@ Module.register("MMM-SolarEdge",{
 
         if (!this.config.basicHeader) {
             var imgDiv = document.createElement("div");
+
             var img = document.createElement("img");
             img.src = "/modules/MMM-SolarEdge/solar_white.png";
+            imgDiv.appendChild(img);
 
             var sTitle = document.createElement("p");
             sTitle.innerHTML = "SolarEdge PV";
             sTitle.className += " thin normal";
-            imgDiv.appendChild(img);
-    	      imgDiv.appendChild(sTitle);
+			imgDiv.appendChild(sTitle);
+            
+			wrapper.appendChild(imgDiv);
 
             var divider = document.createElement("hr");
-            divider.className += " dimmed";
-            wrapper.appendChild(imgDiv);
+            divider.className = "dimmed";
             wrapper.appendChild(divider);
         }
 
@@ -108,19 +116,19 @@ Module.register("MMM-SolarEdge",{
         		var row = document.createElement("tr");
 
         		var titleTr = document.createElement("td");
-        		var dataTr = document.createElement("td");
-
+        		titleTr.className += "small";
         		titleTr.innerHTML = this.titles[i];
-//        		dataTr.innerHTML = this.results[i] + " " + this.suffixes[i];
-            dataTr.innerHTML = this.results[i];
-        		titleTr.className += " medium regular bright";
-        		dataTr.classname += " medium light normal";
-
         		row.appendChild(titleTr);
+				
+        		var dataTr = document.createElement("td");
+        		dataTr.className += "small";
+				dataTr.innerHTML = this.results[i];
+//        		dataTr.innerHTML = this.results[i] + " " + this.suffixes[i];
         		row.appendChild(dataTr);
 
         		tb.appendChild(row);
       	}
+
         wrapper.appendChild(tb);
         return wrapper;
     }
